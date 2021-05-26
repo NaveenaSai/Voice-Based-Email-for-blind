@@ -19,7 +19,7 @@ def saySomething(phrase):
     engine.runAndWait()
 
 
-def getUserInput(stmt, listen_for=None, confirm_input=True, retry=False, remove_spaces=False, to_lower_case=False):
+def getUserInput(stmt, listen_for=None, confirm_input=True, doNotRetry=False, remove_spaces=False, to_lower_case=False):
     with sr.Microphone() as source:
         recognizer.adjust_for_ambient_noise(source, duration=1)
         if (stmt):
@@ -39,10 +39,10 @@ def getUserInput(stmt, listen_for=None, confirm_input=True, retry=False, remove_
         return userInput
     except Exception as ex:
         print('Error while getting user input...', ex)
-        if retry:
+        if doNotRetry:
             handleFailure()
         else:
-            return getUserInput(stmt, listen_for, confirm_input, True)
+            return getUserInput(stmt, doNotRetry=True)
 
 
 def sendMail(receipient, subject, body):
@@ -221,9 +221,7 @@ def readMailDetails(mail):
         saySomething('Could not fetch the email')
 
 
-def inbox():
-    mails = getMails()
-    readMails(mails)
+def postInboxMenu():
     options = [
         'load more',
         'open mail',
@@ -254,6 +252,12 @@ def inbox():
             saySomething('Could not recognize the option. Please try again')
 
 
+def inbox():
+    mails = getMails()
+    readMails(mails)
+    postInboxMenu()
+
+
 def mainMenu():
     saySomething('Welcome to Audio Email Service')
     options = [
@@ -277,5 +281,4 @@ def mainMenu():
 
 
 if __name__ == '__main__':
-    # mainMenu()
-    login()
+    mainMenu()
