@@ -1,0 +1,24 @@
+beautifulsoup4==4.9.3
+cachetools==4.2.2
+certifi==2020.12.5
+chardet==4.0.0
+comtypes==1.1.10
+cssselect==1.1.0
+cssutils==2.2.0
+idna==2.10
+importlib-metadata==4.0.1
+keyring==23.0.1
+lxml==4.6.3
+premailer==3.8.0
+PyAudio @ file:///C:/Users/k.v.naveena%20sai/OneDrive/Desktop/MINI%20PROJECT/Project%20code/PyAudio-0.2.11-cp39-cp39-win_amd64.whl
+pypiwin32==223
+pyttsx3==2.90
+pywin32==300
+pywin32-ctypes==0.2.0
+requests==2.25.1
+soupsieve==2.2.1
+SpeechRecognition==3.8.1
+urllib3==1.26.4
+wikipedia==1.4.0
+yagmail==0.14.256
+zipp==3.4.1
