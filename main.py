@@ -1,16 +1,19 @@
 import speech_recognition as sr
-import yagmail
 import pyttsx3
 import imaplib
 import email
 import re
-from bs4 import BeautifulSoup
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 
 engine = pyttsx3.init()
 recognizer = sr.Recognizer()
 
-mail_conn = None
+receive_mail_conn = None
+send_mail_conn = None
+emailId = ''
 OFFSET=5
 
 def saySomething(phrase):
@@ -45,16 +48,12 @@ def getUserInput(stmt, listen_for=None, confirm_input=True, doNotRetry=False, re
             return getUserInput(stmt, doNotRetry=True)
 
 
-def sendMail(receipient, subject, body):
+def sendMail(receipient, mail):
+    global send_mail_conn
+    global emailId
     print('Sending email...')
     try:
-        with open('.\configs\mail.xml') as f:
-            content = f.read()
-        config = BeautifulSoup(content, features='lxml-xml')
-        email = str(config.mailConfig.email.contents[0])
-        password = str(config.mailConfig.password.contents[0])
-        sender = yagmail.SMTP(user=email, password=password)
-        sender.send(to=receipient, subject=subject, contents=body)
+        send_mail_conn.sendmail(emailId, receipient, mail.as_string())
     except Exception as ex:
         print('Error while getting sending mail...', ex)
         handleFailure()
@@ -71,10 +70,11 @@ def notYetConfigured():
 
 
 def composeMail():
+    global emailId
     # COMPOSE EMAIL
     # -----------------
     # Ask for recipient
-    receipient = getUserInput('Please provide the receipient\'s email address.')
+    receipient = getUserInput('Please provide the receipient\'s email address.', remove_spaces=True, to_lower_case=True)
     # Ask for subject
     subject = getUserInput('Please provide the subject of the email.')
     # Ask for body
@@ -84,7 +84,13 @@ def composeMail():
     if (confirmation == 'yes'):
         # Send Email
         saySomething('Please wait while the mail is being sent.')
-        sendMail(receipient, subject, body)
+        mail = MIMEMultipart('alternative')
+        mail['Subject'] = subject
+        mail['From'] = emailId
+        mail['To'] = receipient
+        part1 = MIMEText(body, 'html')
+        mail.attach(part1)
+        sendMail(receipient, mail)
         saySomething('You mail has been sent successfully.')
     else:
         saySomething('You mail has been cancelled.')
@@ -139,7 +145,9 @@ def getUserInputLetterByLetter(stmt):
 
 
 def login():
-    global mail_conn
+    global emailId
+    global send_mail_conn
+    global receive_mail_conn
     # emailId = getUserInput('Please provide your email', remove_spaces=True, to_lower_case=True)
     # password = getUserInput('Please provide your password', remove_spaces=True, to_lower_case=True)
     emailId = 'naveenasai2001@gmail.com'
@@ -149,8 +157,12 @@ def login():
     try:
         SMTP_SERVER = "imap.gmail.com"
         SMTP_PORT = 993
-        mail_conn = imaplib.IMAP4_SSL(SMTP_SERVER)
-        mail_conn.login(emailId, password)
+        receive_mail_conn = imaplib.IMAP4_SSL(SMTP_SERVER)
+        receive_mail_conn.login(emailId, password)
+        send_mail_conn = smtplib.SMTP('smtp.gmail.com', 587) 
+        send_mail_conn.ehlo()
+        send_mail_conn.starttls()
+        send_mail_conn.login(emailId,password)  
         saySomething('Login successful!')
         postLoginMenu()
     except Exception as ex:
@@ -164,14 +176,14 @@ def parseEmail(data):
 
 
 def getMailDetailsByEmailId(emailId):
-    global mail_conn
-    mail_conn.select('INBOX')
+    global receive_mail_conn
+    receive_mail_conn.select('INBOX')
     category = "Primary"
-    status, response = mail_conn.uid('search', 'X-GM-RAW "category:' + category + '"')
+    status, response = receive_mail_conn.uid('search', 'X-GM-RAW "category:' + category + '"')
     response = response[0].decode('utf-8').split()
     response.reverse()
     for uid in response:
-        status, data = mail_conn.uid('fetch', uid, '(RFC822)')
+        status, data = receive_mail_conn.uid('fetch', uid, '(RFC822)')
         mail = parseEmail(data)
         if emailId.lower() in mail['from'].lower():
             return mail
@@ -179,16 +191,16 @@ def getMailDetailsByEmailId(emailId):
     
 
 def getMails(skip=0, limit=OFFSET):
-    global mail_conn
-    mail_conn.select('INBOX')
+    global receive_mail_conn
+    receive_mail_conn.select('INBOX')
     category = "Primary"
-    status, response = mail_conn.uid('search', 'X-GM-RAW "category:' + category + '"')
+    status, response = receive_mail_conn.uid('search', 'X-GM-RAW "category:' + category + '"')
     response = response[0].decode('utf-8').split()
     response.reverse()
     response = response[skip:min(skip+limit, len(response))]
     mails = []
     for uid in response:
-        status, data = mail_conn.uid('fetch', uid, '(RFC822)')
+        status, data = receive_mail_conn.uid('fetch', uid, '(RFC822)')
         mail = parseEmail(data)
         mails.append(mail)
     return mails
@@ -282,3 +294,4 @@ def mainMenu():
 
 if __name__ == '__main__':
     mainMenu()
+    
