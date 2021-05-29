@@ -182,11 +182,24 @@ def getMailDetailsByEmailId(emailId):
     status, response = receive_mail_conn.uid('search', 'X-GM-RAW "category:' + category + '"')
     response = response[0].decode('utf-8').split()
     response.reverse()
+    mail_checked = 0
     for uid in response:
+        mail_checked = mail_checked+1
         status, data = receive_mail_conn.uid('fetch', uid, '(RFC822)')
         mail = parseEmail(data)
+        print("Checking mail : " + mail['from'])
         if emailId.lower() in mail['from'].lower():
             return mail
+        if mail_checked % 5 == 0:
+            helper_text = "first"
+            if mail_checked > 5:
+                helper_text = "next"
+            choice = getUserInput("couldn't find the mail from " + helper_text + " 5 mails in the inbox, should I continue the search?")
+            if choice == "no":
+                saySomething("stopping the search")
+                return "canceled"
+            else:
+                saySomething("Continuing the search")
     return None
     
 
@@ -236,7 +249,7 @@ def readMailDetails(mail):
 def postInboxMenu():
     options = [
         'load more',
-        'open mail',
+        'search mail',
         'go back',
     ]
     skip = OFFSET
@@ -249,13 +262,14 @@ def postInboxMenu():
             next_mails = getMails(skip)
             readMails(next_mails)
             skip += OFFSET
-        elif (choice == 'open mail'):
+        elif (choice == 'search mail'):
             from_address = getUserInput('Please provide a from address')
             mail_to_be_opened = getMailDetailsByEmailId(from_address)
-            if mail_to_be_opened:
-                readMailDetails(mail_to_be_opened)
-            else:
-                saySomething('Could not find email')
+            if mail_to_be_opened != "canceled":
+                if mail_to_be_opened:
+                    readMailDetails(mail_to_be_opened)
+                else:
+                    saySomething('Could not find email')
         elif (choice == 'go back'):
             break
         elif (choice == 'quit'):
@@ -265,6 +279,7 @@ def postInboxMenu():
 
 
 def inbox():
+    saySomething("please wait while we load your inbox")
     mails = getMails()
     readMails(mails)
     postInboxMenu()
@@ -294,4 +309,3 @@ def mainMenu():
 
 if __name__ == '__main__':
     mainMenu()
-    
