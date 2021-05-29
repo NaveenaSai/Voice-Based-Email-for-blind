@@ -220,8 +220,9 @@ def getMails(skip=0, limit=OFFSET):
 
 
 def readMails(mails):
+    saySomething("received mails from the following")
     for mail in mails:
-        saySomething("received mail from " + mail["from"])
+        saySomething(mail["from"])
 
 
 def extractContentFromHTML(html):
@@ -246,22 +247,19 @@ def readMailDetails(mail):
         saySomething('Could not fetch the email')
 
 
-def postInboxMenu():
+def inbox():
     options = [
-        'load more',
+        'read mail',
         'search mail',
         'go back',
     ]
-    skip = OFFSET
     while True:
         saySomething('Here are your available options')
         for option in options:
             saySomething(option)
         choice = getUserInput('Please choose an option')
-        if (choice == 'load more'):
-            next_mails = getMails(skip)
-            readMails(next_mails)
-            skip += OFFSET
+        if (choice == 'read mail'):
+            readMailFromInbox()
         elif (choice == 'search mail'):
             from_address = getUserInput('Please provide a from address')
             mail_to_be_opened = getMailDetailsByEmailId(from_address)
@@ -278,11 +276,35 @@ def postInboxMenu():
             saySomething('Could not recognize the option. Please try again')
 
 
-def inbox():
-    saySomething("please wait while we load your inbox")
-    mails = getMails()
+def readMailFromInbox():
+    saySomething("please wait while we load your mails from the inbox")
+    skip = 0
+    mails = getMails(skip)
+    saySomething("Here are the latest " + str(OFFSET) + " mails from your inbox")
     readMails(mails)
-    postInboxMenu()
+    options = [
+        'read more',
+        'open mail',
+        'go back'
+    ]
+    while True:
+        saySomething('Here are your available options')
+        for option in options:
+            saySomething(option)
+        choice = getUserInput('Please choose an option')
+        if choice == "read more":
+            saySomething("please wait")
+            skip = skip + OFFSET
+            mails = getMails(skip)
+            readMails(mails)
+        elif choice == "open mail":
+            saySomething("please go back and navigate to search mail to open the mail")
+        elif (choice == 'go back'):
+            break
+        elif (choice == 'quit'):
+            quitApp()
+        else:
+            saySomething('Could not recognize the option. Please try again')
 
 
 def mainMenu():
