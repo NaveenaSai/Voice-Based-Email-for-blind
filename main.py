@@ -248,7 +248,7 @@ def extractContentFromHTML(html):
 def readMailDetails(mail):
     saySomething('Here are the details of the mail from ' + mail['from'])
     content_type = mail.get_content_type()
-    payload = mail.get_payload()
+    payload = mail.get_payload(decode = True)
     if (content_type == 'text/html'):
         content = extractContentFromHTML(payload)
         saySomething('Warning! This content was extracted from HTML so it could be in-accurate.')
