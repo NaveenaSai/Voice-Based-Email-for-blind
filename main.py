@@ -1,5 +1,6 @@
 import speech_recognition as sr
 import pyttsx3
+from bs4 import BeautifulSoup
 import imaplib
 import email
 import re
@@ -234,9 +235,10 @@ def readMails(mails):
 
 
 def extractContentFromHTML(html):
-    content = re.sub('<[^>]*>', '', html)
-    content = re.sub('\s+', ' ', content)
-    return content
+    soup = BeautifulSoup(html, 'html.parser')
+    text = soup.get_text(strip = True)
+    text = re.sub('\s+', ' ', text)
+    return text
 
 
 def readMailDetails(mail):
