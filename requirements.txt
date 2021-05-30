@@ -9,6 +9,7 @@ idna==2.10
 importlib-metadata==4.0.1
 keyring==23.0.1
 lxml==4.6.3
+Pillow==8.2.0
 premailer==3.8.0
 PyAudio @ file:///C:/Users/k.v.naveena%20sai/OneDrive/Desktop/MINI%20PROJECT/Project%20code/PyAudio-0.2.11-cp39-cp39-win_amd64.whl
 pypiwin32==223

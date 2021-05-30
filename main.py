@@ -4,9 +4,12 @@ import imaplib
 import email
 import re
 import smtplib
+import tkinter
+import _thread
+import winsound
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-
+from PIL import ImageTk, Image
 
 engine = pyttsx3.init()
 recognizer = sr.Recognizer()
@@ -15,9 +18,12 @@ receive_mail_conn = None
 send_mail_conn = None
 emailId = ''
 OFFSET=5
+gui_pending_tasks = []
+
 
 def saySomething(phrase):
     print('Engine says...', phrase)
+    pushGUITask('CHANGE_OUTPUT_PHRASE', new_phrase=phrase)
     engine.say(phrase)
     engine.runAndWait()
 
@@ -28,10 +34,12 @@ def getUserInput(stmt, listen_for=None, confirm_input=True, doNotRetry=False, re
         if (stmt):
             saySomething(stmt)
         print('Listening...')
+        pushGUITask('MIC_ENABLED')
+        winsound.Beep(440, 150)
         recordedaudio = recognizer.listen(source, None, listen_for)
+        pushGUITask('MIC_DISABLED')
     try:
         userInput = recognizer.recognize_google(recordedaudio, language='en-US')
-        # print('userInput 11', userInput)
         if (remove_spaces):
             userInput = ''.join(userInput.split(' '))
         if (to_lower_case):
@@ -329,5 +337,48 @@ def mainMenu():
             saySomething('Could not recognize the option. Please try again')
 
 
+def pushGUITask(task_name, **kwargs):
+    gui_pending_tasks.append((task_name, kwargs))
+
+
+def initGUI():
+    gui = tkinter.Tk()
+    gui.title('Voice Based Email')
+    gui.resizable(False, False)
+    gui.geometry('400x500+%d+%d' % ((gui.winfo_screenwidth() / 2) - 200, (gui.winfo_screenheight() / 2) - 250))
+    mailIcon = tkinter.PhotoImage(file='assets/emailIcon.png')
+    gui.iconphoto(False, mailIcon)
+    canvas = tkinter.Canvas(gui, width=400, height=400)
+    canvas.pack()
+    micEnabledIcon = Image.open('assets/micEnabledIcon.png')
+    micEnabledIcon = micEnabledIcon.resize((350, 350))
+    micEnabledIcon = ImageTk.PhotoImage(micEnabledIcon)
+    micDisabledIcon = Image.open('assets/micDisabledIcon.png')
+    micDisabledIcon = micDisabledIcon.resize((350, 350))
+    micDisabledIcon = ImageTk.PhotoImage(micDisabledIcon)
+    micIconInCanvas = canvas.create_image(400 / 2, 400 / 2, anchor=tkinter.CENTER, image=micDisabledIcon)
+    textBot = tkinter.Label(gui, text='Voice Based Email')
+    textBot.pack()
+
+    def timertick():
+        while len(gui_pending_tasks) > 0:
+            (task_name, kwargs) = gui_pending_tasks.pop(0)
+            if task_name == 'MIC_ENABLED':
+                canvas.itemconfig(micIconInCanvas, image=micEnabledIcon)
+            if task_name == 'MIC_DISABLED':
+                canvas.itemconfig(micIconInCanvas, image=micDisabledIcon)
+            if task_name == 'CHANGE_OUTPUT_PHRASE':
+                textBot['text'] = kwargs['new_phrase']
+        gui.after(100, timertick)
+
+    def on_closing():
+        pass
+
+    timertick()
+    gui.protocol('WM_DELETE_WINDOW', on_closing)
+    gui.mainloop()
+
+
 if __name__ == '__main__':
+    _thread.start_new_thread(initGUI, ())
     mainMenu()
