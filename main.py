@@ -376,7 +376,7 @@ def initGUI():
     micDisabledIcon = micDisabledIcon.resize((350, 350))
     micDisabledIcon = ImageTk.PhotoImage(micDisabledIcon)
     micIconInCanvas = canvas.create_image(400 / 2, 400 / 2, anchor=tkinter.CENTER, image=micDisabledIcon)
-    textBot = tkinter.Label(gui, text='Voice Based Email')
+    textBot = tkinter.Label(gui, text='Voice Based Email', wraplength=300, justify="center")
     textBot.pack()
 
     def timertick():
