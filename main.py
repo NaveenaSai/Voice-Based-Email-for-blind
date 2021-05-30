@@ -198,7 +198,11 @@ def getMailDetailsByEmailId(emailId):
         mail = parseEmail(data)
         print("Checking mail : " + mail['from'])
         if emailId.lower() in mail['from'].lower():
-            return mail
+            confirmation = getUserInput("Found a mail from " + mail["from"] + " received on " + mail.get("date") + ". Do you want me to open it?")
+            if confirmation == "yes":
+                return mail
+            else:
+                saySomething("Okay continuing the search.")
         if mail_checked % 5 == 0:
             helper_text = "first"
             if mail_checked > 5:
