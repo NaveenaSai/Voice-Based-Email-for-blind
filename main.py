@@ -8,6 +8,7 @@ import smtplib
 import tkinter
 import _thread
 import winsound
+import configparser
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from PIL import ImageTk, Image
@@ -159,8 +160,10 @@ def login():
     global receive_mail_conn
     # emailId = getUserInput('Please provide your email', remove_spaces=True, to_lower_case=True)
     # password = getUserInput('Please provide your password', remove_spaces=True, to_lower_case=True)
-    emailId = '**********'
-    password = '***********'
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    emailId = config['user_credentials']['email']
+    password = config['user_credentials']['password']
     # password = getUserInputLetterByLetter('Please provide your password')
     saySomething('Please wait while we login')
     try:
