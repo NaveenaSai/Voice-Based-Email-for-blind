@@ -314,6 +314,16 @@ def readMailFromInbox():
         else:
             saySomething('Could not recognize the option. Please try again')
 
+def register():
+    firstname = getUserInput("Please provide your first name.")
+    lastname = getUserInput("Please provide your last name.")
+    email_address = getUserInput("Please provide your email address.")
+    confirmation = getUserInput("Are you sure you want to submit the registration request?")
+    if confirmation == "yes":
+        # TODO : sending the request to admin
+        saySomething("Thank you for registering! Your request has been forwarded to our admin. We will reach out to you shortly.")
+    else:
+        saySomething("Your registration request has been canceled.")
 
 def mainMenu():
     saySomething('Welcome to Audio Email Service')
@@ -330,7 +340,7 @@ def mainMenu():
         if (choice == 'login'):
             login()
         elif (choice == 'register'):
-            notYetConfigured()
+            register()
         elif (choice == 'quit'):
             quitApp()
         else:
