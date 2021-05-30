@@ -159,8 +159,8 @@ def login():
     global receive_mail_conn
     # emailId = getUserInput('Please provide your email', remove_spaces=True, to_lower_case=True)
     # password = getUserInput('Please provide your password', remove_spaces=True, to_lower_case=True)
-    emailId = 'naveenasai2001@gmail.com'
-    password = 'tjictggamdbqfjli'
+    emailId = '**********'
+    password = '***********'
     # password = getUserInputLetterByLetter('Please provide your password')
     saySomething('Please wait while we login')
     try:
