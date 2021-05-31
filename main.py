@@ -162,7 +162,7 @@ def login():
     # password = getUserInput('Please provide your password', remove_spaces=True, to_lower_case=True)
     config = configparser.ConfigParser()
     config.read('config.ini')
-    emailId = config['user_credentials']['email']
+    emailId = config['user_credentials']['emailId']
     password = config['user_credentials']['password']
     # password = getUserInputLetterByLetter('Please provide your password')
     saySomething('Please wait while we login')
