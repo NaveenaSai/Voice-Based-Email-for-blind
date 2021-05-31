@@ -30,7 +30,7 @@ def saySomething(phrase):
     engine.runAndWait()
 
 
-def getUserInput(stmt, listen_for=None, confirm_input=True, doNotRetry=False, remove_spaces=False, to_lower_case=False):
+def getUserInput(stmt, confirm_input=True, doNotRetry=False, remove_spaces=False, to_lower_case=False):
     with sr.Microphone() as source:
         recognizer.adjust_for_ambient_noise(source, duration=1)
         if (stmt):
@@ -38,7 +38,7 @@ def getUserInput(stmt, listen_for=None, confirm_input=True, doNotRetry=False, re
         print('Listening...')
         pushGUITask('MIC_ENABLED')
         winsound.Beep(440, 150)
-        recordedaudio = recognizer.listen(source, None, listen_for)
+        recordedaudio = recognizer.listen(source)
         pushGUITask('MIC_DISABLED')
     try:
         userInput = recognizer.recognize_google(recordedaudio, language='en-US')
@@ -73,10 +73,6 @@ def sendMail(receipient, mail):
 def handleFailure():
     saySomething('Unexpected error occured! Please try again later!')
     exit()
-
-
-def notYetConfigured():
-    saySomething('This option is not yet configured! Please try again later!')
 
 
 def composeMail():
@@ -140,19 +136,6 @@ def postLoginMenu():
             saySomething('Could not recognize the option. Please try again')
 
 
-def getUserInputLetterByLetter(stmt):
-    saySomething(stmt)
-    letters = []
-    while True:
-        user_input = getUserInput(None, confirm_input=False)
-        if (user_input == 'done'):
-            break
-        else:
-            letters.append(user_input)
-    user_input = ''.join(letters)
-    saySomething('You said, ' + ' '.join(letters))
-    return user_input
-
 
 def login():
     global emailId
@@ -164,7 +147,6 @@ def login():
     config.read('config.ini')
     emailId = config['user_credentials']['emailId']
     password = config['user_credentials']['password']
-    # password = getUserInputLetterByLetter('Please provide your password')
     saySomething('Please wait while we login')
     try:
         SMTP_SERVER = "imap.gmail.com"
