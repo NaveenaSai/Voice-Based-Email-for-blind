@@ -97,9 +97,9 @@ def composeMail():
         part1 = MIMEText(body, 'html')
         mail.attach(part1)
         sendMail(receipient, mail)
-        saySomething('You mail has been sent successfully.')
+        saySomething('Your mail has been sent successfully.')
     else:
-        saySomething('You mail has been cancelled.')
+        saySomething('Your mail has been cancelled.')
 
 
 def quitApp():
@@ -108,7 +108,7 @@ def quitApp():
 
 
 def logout():
-    saySomething('You have been logged-out')
+    saySomething('You have been logged-out.')
 
 
 def postLoginMenu():
@@ -119,10 +119,10 @@ def postLoginMenu():
         'Quit'
     ]
     while True:
-        saySomething('Here are your available options')
+        saySomething('Here are your available options.')
         for option in options:
             saySomething(option)
-        choice = getUserInput('Please choose an option')
+        choice = getUserInput('Please choose an option.')
         if (choice == 'compose mail'):
             composeMail()
         elif (choice == 'inbox'):
@@ -133,7 +133,7 @@ def postLoginMenu():
         elif (choice == 'quit'):
             quitApp()
         else:
-            saySomething('Could not recognize the option. Please try again')
+            saySomething('Could not recognize the option. Please try again.')
 
 
 
@@ -160,7 +160,7 @@ def login():
         saySomething('Login successful!')
         postLoginMenu()
     except Exception as ex:
-        saySomething('Unable to login')
+        saySomething('Unable to login!')
 
 
 def parseEmail(data):
@@ -192,12 +192,12 @@ def getMailDetailsByEmailId(emailId):
             helper_text = "first"
             if mail_checked > 5:
                 helper_text = "next"
-            choice = getUserInput("couldn't find the mail from " + helper_text + " 5 mails in the inbox, should I continue the search?")
+            choice = getUserInput("Couldn't find the mail from " + helper_text + " 5 mails in the inbox, should I continue the search?")
             if choice == "no":
-                saySomething("stopping the search")
+                saySomething("Stopping the search.")
                 return "canceled"
             else:
-                saySomething("Continuing the search")
+                saySomething("Continuing the search.")
     return None
     
 
@@ -218,7 +218,7 @@ def getMails(skip=0, limit=OFFSET):
 
 
 def readMails(mails):
-    saySomething("received mails from the following")
+    saySomething("Received mails from the following...")
     for mail in mails:
         saySomething(mail["from"])
 
@@ -243,7 +243,7 @@ def readMailDetails(mail):
         saySomething(content)
     else:
         print('ERROR! Unhandled content_type', content_type)
-        saySomething('Could not fetch the email')
+        saySomething('Could not fetch the email.')
 
 
 def inbox():
@@ -253,33 +253,33 @@ def inbox():
         'go back',
     ]
     while True:
-        saySomething('Here are your available options')
+        saySomething('Here are your available options.')
         for option in options:
             saySomething(option)
-        choice = getUserInput('Please choose an option')
+        choice = getUserInput('Please choose an option.')
         if (choice == 'read mail'):
             readMailFromInbox()
         elif (choice == 'search mail'):
-            from_address = getUserInput('Please provide a from address')
+            from_address = getUserInput('Please provide a from address.')
             mail_to_be_opened = getMailDetailsByEmailId(from_address)
             if mail_to_be_opened != "canceled":
                 if mail_to_be_opened:
                     readMailDetails(mail_to_be_opened)
                 else:
-                    saySomething('Could not find email')
+                    saySomething('Could not find email.')
         elif (choice == 'go back'):
             break
         elif (choice == 'quit'):
             quitApp()
         else:
-            saySomething('Could not recognize the option. Please try again')
+            saySomething('Could not recognize the option. Please try again.')
 
 
 def readMailFromInbox():
-    saySomething("please wait while we load your mails from the inbox")
+    saySomething("please wait while we load your mails from the inbox.")
     skip = 0
     mails = getMails(skip)
-    saySomething("Here are the latest " + str(OFFSET) + " mails from your inbox")
+    saySomething("Here are the latest " + str(OFFSET) + " mails from your inbox.")
     readMails(mails)
     options = [
         'read more',
@@ -287,23 +287,23 @@ def readMailFromInbox():
         'go back'
     ]
     while True:
-        saySomething('Here are your available options')
+        saySomething('Here are your available options.')
         for option in options:
             saySomething(option)
-        choice = getUserInput('Please choose an option')
+        choice = getUserInput('Please choose an option.')
         if choice == "read more":
-            saySomething("please wait")
+            saySomething("please wait!")
             skip = skip + OFFSET
             mails = getMails(skip)
             readMails(mails)
         elif choice == "open mail":
-            saySomething("please go back and navigate to search mail to open the mail")
+            saySomething("please go back and navigate to search mail to open the mail.")
         elif (choice == 'go back'):
             break
         elif (choice == 'quit'):
             quitApp()
         else:
-            saySomething('Could not recognize the option. Please try again')
+            saySomething('Could not recognize the option. Please try again.')
 
 def register():
     firstname = getUserInput("Please provide your first name.")
@@ -317,17 +317,17 @@ def register():
         saySomething("Your registration request has been canceled.")
 
 def mainMenu():
-    saySomething('Welcome to Audio Email Service')
+    saySomething('Welcome to Audio Email Service.')
     options = [
-        'Login',
         'Register',
+        'Login',
         'Quit'
     ]
     while True:
-        saySomething('Here are your available options')
+        saySomething('Here are your available options.')
         for option in options:
             saySomething(option)
-        choice = getUserInput('Please choose an option')
+        choice = getUserInput('Please choose an option.')
         if (choice == 'login'):
             login()
         elif (choice == 'register'):
@@ -335,7 +335,7 @@ def mainMenu():
         elif (choice == 'quit'):
             quitApp()
         else:
-            saySomething('Could not recognize the option. Please try again')
+            saySomething('Could not recognize the option. Please try again.')
 
 
 def pushGUITask(task_name, **kwargs):
