@@ -81,10 +81,25 @@ def composeMail():
     # -----------------
     # Ask for recipient
     receipient = getUserInput('Please provide the receipient\'s email address.', remove_spaces=True, to_lower_case=True)
+    confirmation = getUserInput('Do you want to continue?')
+    if(confirmation == 'yes'):
+        saySomething('Proceeding to next.')
+    else:
+        return
     # Ask for subject
     subject = getUserInput('Please provide the subject of the email.')
+    confirmation = getUserInput('Do you want to continue?')
+    if(confirmation == 'yes'):
+        saySomething('Proceeding to next.')
+    else:
+        return
     # Ask for body
     body = getUserInput('Please provide the content of the email.', 10)
+    confirmation = getUserInput('Do you want to continue?')
+    if(confirmation == 'yes'):
+        saySomething('Proceeding to next.')
+    else:
+        return
     # Get confirmation
     confirmation = getUserInput('Are you sure you want to send the email?')
     if (confirmation == 'yes'):
