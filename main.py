@@ -85,6 +85,7 @@ def composeMail():
     if(confirmation == 'yes'):
         saySomething('Proceeding to next.')
     else:
+        saySomething('Compose mail is cancelled.')
         return
     # Ask for subject
     subject = getUserInput('Please provide the subject of the email.')
@@ -92,6 +93,7 @@ def composeMail():
     if(confirmation == 'yes'):
         saySomething('Proceeding to next.')
     else:
+        saySomething('compose mail is cancelled')
         return
     # Ask for body
     body = getUserInput('Please provide the content of the email.', 10)
@@ -99,6 +101,7 @@ def composeMail():
     if(confirmation == 'yes'):
         saySomething('Proceeding to next.')
     else:
+        saySomething('compose mail is cancelled')
         return
     # Get confirmation
     confirmation = getUserInput('Are you sure you want to send the email?')
