@@ -25,7 +25,7 @@ gui_pending_tasks = []
 
 def saySomething(phrase):
     print('Engine says...', phrase)
-    pushGUITask('CHANGE_OUTPUT_PHRASE', new_phrase=phrase)
+    pushGUITask('SHOW_TEXT', text=phrase)
     engine.say(phrase)
     engine.runAndWait()
 
@@ -137,10 +137,7 @@ def postLoginMenu():
         'Quit'
     ]
     while True:
-        saySomething('Here are your available options.')
-        for option in options:
-            saySomething(option)
-        choice = getUserInput('Please choose an option.')
+        choice = readMenuAndGetInput(options)
         if (choice == 'compose mail'):
             composeMail()
         elif (choice == 'inbox'):
@@ -152,7 +149,6 @@ def postLoginMenu():
             quitApp()
         else:
             saySomething('Could not recognize the option. Please try again.')
-
 
 
 def login():
@@ -271,10 +267,7 @@ def inbox():
         'go back',
     ]
     while True:
-        saySomething('Here are your available options.')
-        for option in options:
-            saySomething(option)
-        choice = getUserInput('Please choose an option.')
+        choice = readMenuAndGetInput(options)
         if (choice == 'read mail'):
             readMailFromInbox()
         elif (choice == 'search mail'):
@@ -305,10 +298,7 @@ def readMailFromInbox():
         'go back'
     ]
     while True:
-        saySomething('Here are your available options.')
-        for option in options:
-            saySomething(option)
-        choice = getUserInput('Please choose an option.')
+        choice = readMenuAndGetInput(options)
         if choice == "read more":
             saySomething("please wait!")
             skip = skip + OFFSET
@@ -323,6 +313,7 @@ def readMailFromInbox():
         else:
             saySomething('Could not recognize the option. Please try again.')
 
+
 def register():
     firstname = getUserInput("Please provide your first name.")
     lastname = getUserInput("Please provide your last name.")
@@ -334,6 +325,7 @@ def register():
     else:
         saySomething("Your registration request has been canceled.")
 
+
 def mainMenu():
     saySomething('Welcome to Audio Email Service.')
     options = [
@@ -342,10 +334,7 @@ def mainMenu():
         'Quit'
     ]
     while True:
-        saySomething('Here are your available options.')
-        for option in options:
-            saySomething(option)
-        choice = getUserInput('Please choose an option.')
+        choice = readMenuAndGetInput(options)
         if (choice == 'login'):
             login()
         elif (choice == 'register'):
@@ -356,26 +345,44 @@ def mainMenu():
             saySomething('Could not recognize the option. Please try again.')
 
 
+def readMenuAndGetInput(options):
+    pushGUITask('CLEAR_TEXT')
+    saySomething('Here are your available options.')
+    for option in options:
+        saySomething(option)
+    choice = getUserInput('Please choose an option.')
+    pushGUITask('CLEAR_TEXT')
+    return choice
+
+
 def pushGUITask(task_name, **kwargs):
     gui_pending_tasks.append((task_name, kwargs))
 
 
 def initGUI():
     gui = tkinter.Tk()
+    guiDimensions = {
+        'width': 400,
+        'height': 550,
+        'canvas_width': 400,
+        'canvas_height': 300
+    }
     gui.title('Voice Based Email')
     gui.resizable(False, False)
-    gui.geometry('400x500+%d+%d' % ((gui.winfo_screenwidth() / 2) - 200, (gui.winfo_screenheight() / 2) - 250))
+    gui.geometry('%dx%d+%d+%d' % (guiDimensions['width'], guiDimensions['height'], (gui.winfo_screenwidth() / 2) - (guiDimensions['width'] / 2), (gui.winfo_screenheight() / 2) - (guiDimensions['height'] / 2)))
     mailIcon = tkinter.PhotoImage(file='assets/emailIcon.png')
     gui.iconphoto(False, mailIcon)
-    canvas = tkinter.Canvas(gui, width=400, height=400)
+    canvas = tkinter.Canvas(gui, width=guiDimensions['canvas_width'], height=guiDimensions['canvas_height'])
     canvas.pack()
     micEnabledIcon = Image.open('assets/micEnabledIcon.png')
-    micEnabledIcon = micEnabledIcon.resize((350, 350))
+    mic_image_off = 10
+    mic_image_len = min(guiDimensions['canvas_width'], guiDimensions['canvas_height']) - mic_image_off
+    micEnabledIcon = micEnabledIcon.resize((mic_image_len, mic_image_len))
     micEnabledIcon = ImageTk.PhotoImage(micEnabledIcon)
     micDisabledIcon = Image.open('assets/micDisabledIcon.png')
-    micDisabledIcon = micDisabledIcon.resize((350, 350))
+    micDisabledIcon = micDisabledIcon.resize((mic_image_len, mic_image_len))
     micDisabledIcon = ImageTk.PhotoImage(micDisabledIcon)
-    micIconInCanvas = canvas.create_image(400 / 2, 400 / 2, anchor=tkinter.CENTER, image=micDisabledIcon)
+    micIconInCanvas = canvas.create_image(guiDimensions['canvas_width'] / 2, guiDimensions['canvas_height'] / 2, anchor=tkinter.CENTER, image=micDisabledIcon)
     textBot = tkinter.Label(gui, text='Voice Based Email', wraplength=300, justify="center")
     textBot.pack()
 
@@ -386,8 +393,14 @@ def initGUI():
                 canvas.itemconfig(micIconInCanvas, image=micEnabledIcon)
             if task_name == 'MIC_DISABLED':
                 canvas.itemconfig(micIconInCanvas, image=micDisabledIcon)
-            if task_name == 'CHANGE_OUTPUT_PHRASE':
-                textBot['text'] = kwargs['new_phrase']
+            if task_name == 'CLEAR_TEXT':
+                textBot['text'] = ''
+            if task_name == 'SHOW_TEXT':
+                if len(textBot['text']) == 0 or textBot['text'].count('\n\n') > 6:
+                    textBot['text'] = kwargs['text']
+                else:
+                    textBot['text'] += '\n\n' + kwargs['text']
+
         gui.after(100, timertick)
 
     def on_closing():
