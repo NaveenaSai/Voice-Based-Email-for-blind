@@ -346,12 +346,10 @@ def mainMenu():
 
 
 def readMenuAndGetInput(options):
-    pushGUITask('CLEAR_TEXT')
     saySomething('Here are your available options.')
     for option in options:
         saySomething(option)
     choice = getUserInput('Please choose an option.')
-    pushGUITask('CLEAR_TEXT')
     return choice
 
 
@@ -386,6 +384,21 @@ def initGUI():
     textBot = tkinter.Label(gui, text='Voice Based Email', wraplength=300, justify="center")
     textBot.pack()
 
+    def calcLinesOccupied(lines):
+        lines_occupied = 0
+        curr_line_len = 0
+        for line in lines:
+            words = line.split(' ')
+            for word in words:
+                curr_line_len += len(word) + 1
+                if curr_line_len > 52:
+                    lines_occupied += 1
+                    curr_line_len = 0
+            if curr_line_len > 0:
+                lines_occupied += 1
+        lines_occupied += len(lines) - 1
+        return lines_occupied
+
     def timertick():
         while len(gui_pending_tasks) > 0:
             (task_name, kwargs) = gui_pending_tasks.pop(0)
@@ -393,13 +406,18 @@ def initGUI():
                 canvas.itemconfig(micIconInCanvas, image=micEnabledIcon)
             if task_name == 'MIC_DISABLED':
                 canvas.itemconfig(micIconInCanvas, image=micDisabledIcon)
-            if task_name == 'CLEAR_TEXT':
-                textBot['text'] = ''
             if task_name == 'SHOW_TEXT':
-                if len(textBot['text']) == 0 or textBot['text'].count('\n\n') > 6:
-                    textBot['text'] = kwargs['text']
-                else:
-                    textBot['text'] += '\n\n' + kwargs['text']
+                lines = textBot['text'].split('\n\n')
+                lines.append(kwargs['text'])
+                textBot['text'] = '\n\n'.join(lines)
+                lines_occupied = calcLinesOccupied(lines)
+                while lines_occupied > 17:
+                    if (len(lines[0]) > 52):
+                        lines[0] = lines[0][52:]
+                    else:
+                        lines.pop(0)
+                    lines_occupied = calcLinesOccupied(lines)
+                textBot['text'] = '\n\n'.join(lines)
 
         gui.after(100, timertick)
 
