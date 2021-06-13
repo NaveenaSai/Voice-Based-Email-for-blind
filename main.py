@@ -20,6 +20,7 @@ receive_mail_conn = None
 send_mail_conn = None
 emailId = ''
 OFFSET=5
+SEARCH_BATCH_SIZE = 5
 gui_pending_tasks = []
 
 
@@ -166,9 +167,10 @@ def login():
         send_mail_conn.starttls()
         send_mail_conn.login(emailId,password)  
         saySomething('Login successful!')
-        postLoginMenu()
     except Exception as ex:
         saySomething('Unable to login!')
+        return
+    postLoginMenu()
 
 
 def parseEmail(data):
@@ -196,11 +198,11 @@ def getMailDetailsByEmailId(emailId):
                 return mail
             else:
                 saySomething("Okay continuing the search.")
-        if mail_checked % 5 == 0:
+        if mail_checked % SEARCH_BATCH_SIZE == 0:
             helper_text = "first"
-            if mail_checked > 5:
+            if mail_checked > SEARCH_BATCH_SIZE:
                 helper_text = "next"
-            choice = getUserInput("Couldn't find the mail from " + helper_text + " 5 mails in the inbox, should I continue the search?")
+            choice = getUserInput("Couldn't find the mail from " + helper_text + " " + str(SEARCH_BATCH_SIZE) + " mails in the inbox, should I continue the search?")
             if choice == "no":
                 saySomething("Stopping the search.")
                 return "canceled"
@@ -239,19 +241,24 @@ def extractContentFromHTML(html):
 
 
 def readMailDetails(mail):
-    saySomething('Here are the details of the mail from ' + mail['from'])
-    content_type = mail.get_content_type()
-    payload = mail.get_payload(decode = True)
-    if (content_type == 'text/html'):
-        content = extractContentFromHTML(payload)
-        saySomething('Warning! This content was extracted from HTML so it could be in-accurate.')
-        saySomething(content)
-    elif (content_type == 'multipart/alternative'):
-        content = payload[0].get_payload()
-        saySomething(content)
-    else:
-        print('ERROR! Unhandled content_type', content_type)
-        saySomething('Could not fetch the email.')
+    try:
+        saySomething('Here are the details of the mail from ' + mail['from'])
+        content_type = mail.get_content_type()
+        if (content_type == 'text/html'):
+            payload = mail.get_payload(decode = True)
+            content = extractContentFromHTML(payload)
+            saySomething('Warning! This content was extracted from HTML so it could be in-accurate.')
+            saySomething(content)
+        elif (content_type == 'multipart/alternative'):
+            payload = mail.get_payload(decode = False)
+            content = payload[0].get_payload()
+            content = re.sub('\s+', ' ', content)
+            saySomething(content)
+        else:
+            print('ERROR! Unhandled content_type', content_type)
+            saySomething('Could not fetch the email.')
+    except Exception as ex:
+        saySomething('Unable to read the mail. Please try again later.')
 
 
 def inbox():
