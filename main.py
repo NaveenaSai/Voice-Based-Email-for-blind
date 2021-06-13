@@ -93,16 +93,10 @@ def composeMail():
     if(confirmation == 'yes'):
         saySomething('Proceeding to next.')
     else:
-        saySomething('compose mail is cancelled')
+        saySomething('Compose mail is cancelled.')
         return
     # Ask for body
     body = getUserInput('Please provide the content of the email.', 10)
-    confirmation = getUserInput('Do you want to continue?')
-    if(confirmation == 'yes'):
-        saySomething('Proceeding to next.')
-    else:
-        saySomething('compose mail is cancelled')
-        return
     # Get confirmation
     confirmation = getUserInput('Are you sure you want to send the email?')
     if (confirmation == 'yes'):
@@ -161,7 +155,7 @@ def login():
     config.read('config.ini')
     emailId = config['user_credentials']['emailId']
     password = config['user_credentials']['password']
-    saySomething('Please wait while we login')
+    saySomething('Please wait while we login.')
     try:
         SMTP_SERVER = "imap.gmail.com"
         SMTP_PORT = 993
@@ -262,9 +256,9 @@ def readMailDetails(mail):
 
 def inbox():
     options = [
-        'read mail',
-        'search mail',
-        'go back',
+        'Read Mail',
+        'Search Mail',
+        'Go Back',
     ]
     while True:
         choice = readMenuAndGetInput(options)
@@ -272,6 +266,7 @@ def inbox():
             readMailFromInbox()
         elif (choice == 'search mail'):
             from_address = getUserInput('Please provide a from address.')
+            saySomething('Please wait while we search for the mail.')
             mail_to_be_opened = getMailDetailsByEmailId(from_address)
             if mail_to_be_opened != "canceled":
                 if mail_to_be_opened:
@@ -287,25 +282,25 @@ def inbox():
 
 
 def readMailFromInbox():
-    saySomething("please wait while we load your mails from the inbox.")
+    saySomething("Please wait while we load your mails from the inbox.")
     skip = 0
     mails = getMails(skip)
     saySomething("Here are the latest " + str(OFFSET) + " mails from your inbox.")
     readMails(mails)
     options = [
-        'read more',
-        'open mail',
-        'go back'
+        'Read More',
+        'Open Mail',
+        'Go Back'
     ]
     while True:
         choice = readMenuAndGetInput(options)
         if choice == "read more":
-            saySomething("please wait!")
+            saySomething("Please wait!")
             skip = skip + OFFSET
             mails = getMails(skip)
             readMails(mails)
         elif choice == "open mail":
-            saySomething("please go back and navigate to search mail to open the mail.")
+            saySomething("Please go back and navigate to search mail to open the mail.")
         elif (choice == 'go back'):
             break
         elif (choice == 'quit'):
